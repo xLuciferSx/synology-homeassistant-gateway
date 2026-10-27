@@ -1,0 +1,75 @@
+# Hearth hub — runs anywhere Docker runs (Synology, Raspberry Pi, any Linux box).
+# All components are free/open source: Mosquitto, Go services, distroless images.
+name: hearth
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+    # Not published: only the services on this compose network can reach the bus.
+
+  gateway:
+    build:
+      context: ..
+      args: { SERVICE: gateway }
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MQTT_URL: tcp://mosquitto:1883
+      TZ: ${TZ:-UTC}
+    ports:
+      - "8780:8780"   # the app connects here (LAN only; see SECURITY.md before exposing it)
+    volumes:
+      - gateway-data:/data   # hub identity key + member list; keep it across updates
+    depends_on: [mosquitto]
+
+  bridge-homeassistant:
+    build:
+      context: ..
+      args: { SERVICE: bridge-homeassistant }
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MQTT_URL: tcp://mosquitto:1883
+      TZ: ${TZ:-UTC}
+    depends_on: [mosquitto]
+
+  bridge-zigbee:
+    build:
+      context: ..
+      args: { SERVICE: bridge-zigbee }
+    restart: unless-stopped
+    env_file: .env   # Z2M_MQTT_* points at wherever Zigbee2MQTT runs
+    environment:
+      MQTT_URL: tcp://mosquitto:1883
+      TZ: ${TZ:-UTC}
+    volumes:
+      - zigbee-data:/data    # last reading per sensor, so a restart doesn't blank sleepy sensors
+    depends_on: [mosquitto]
+
+  # Optional: run Zigbee2MQTT here, when no other program (such as Home Assistant)
+  # holds the Zigbee dongle — a dongle can be opened by one program only.
+  # Remove Z2M_MQTT_* from .env, copy zigbee2mqtt/configuration.example.yaml
+  # to configuration.yaml, and run:  docker compose --profile zigbee up -d
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:2
+    profiles: [zigbee]
+    restart: unless-stopped
+    volumes:
+      - ./zigbee2mqtt:/app/data
+    environment:
+      TZ: ${TZ:-UTC}
+    ports:
+      - "8781:8080"   # Zigbee2MQTT web UI: pairing and naming ("Room/Device")
+    # USB coordinator plugged into the NAS (not needed for a network coordinator):
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    depends_on: [mosquitto]
+
+volumes:
+  mosquitto-data:
+  gateway-data:
+  zigbee-data:

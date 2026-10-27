@@ -1,0 +1,5 @@
+deploy/
+**/.env
+**/*.md
+**/*_test.go
+.git

@@ -1,0 +1,9 @@
+.env
+deploy/.env
+deploy/zigbee2mqtt/*
+!deploy/zigbee2mqtt/configuration.example.yaml
+*.p8
+*.pem
+*.key
+/data/
+.DS_Store

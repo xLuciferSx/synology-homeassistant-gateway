@@ -1,0 +1,28 @@
+# Zigbee2MQTT config for Hearth. Copy to configuration.yaml next to this file.
+# Zigbee2MQTT adds generated keys to configuration.yaml on first start, so keep
+# that file private (it is git-ignored).
+version: 4
+homeassistant:
+  enabled: false
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://mosquitto:1883
+serial:
+  # Network coordinator (e.g. SMLIGHT SLZB-06/07): tcp://<coordinator-ip>:6638
+  # USB stick on the NAS: /dev/ttyUSB0 (also uncomment `devices:` in docker-compose.yml)
+  port: /dev/ttyUSB0
+  # Sonoff Zigbee 3.0 USB Dongle Plus V2 (ZBDongle-E) = ember; ZBDongle-P = zstack
+  adapter: ember
+frontend:
+  enabled: true
+  port: 8080
+availability:
+  enabled: true
+device_options:
+  retain: true   # lets bridge-zigbee recover every device's state after a restart
+advanced:
+  network_key: GENERATE
+  pan_id: GENERATE
+  ext_pan_id: GENERATE
+  channel: 25    # stays clear of Wi-Fi channels 1/6 and the Thread network
+  log_level: info
