@@ -114,7 +114,7 @@ func TestTheRadiatorHeatsWhenGasIsCheaper(t *testing.T) {
 		t.Fatalf("reason %q", reason)
 	}
 
-	_, plans, reason = plan(zone, 20.5, heaters, energyNow{elecP: 6.6, gasP: 8.3}, false)
+	_, plans, reason = plan(zone, 20.5, heaters, energyNow{elecP: 7, gasP: 8}, false)
 	if got := setpoints(plans); got["dreo"] <= 21 {
 		t.Fatalf("off-peak electricity is cheaper than gas: the Dreo should heat: %v (%s)", got, reason)
 	}
@@ -128,7 +128,7 @@ func TestTheRadiatorHeatsWhenGasIsCheaper(t *testing.T) {
 func TestAnOpenWindowPausesHeatingAndLearnsNothing(t *testing.T) {
 	zone, heaters := mainBedroom(19)
 	zone.Offset = 1.5
-	offset, plans, reason := plan(zone, 19, heaters, energyNow{elecP: 6.6, gasP: 8.3}, true)
+	offset, plans, reason := plan(zone, 19, heaters, energyNow{elecP: 7, gasP: 8}, true)
 	if got := setpoints(plans); got["dreo"] != 5 || got["trv"] != 5 || offset != 1.5 || reason != "Window open: heating paused" {
 		t.Fatalf("open window: %v offset %v %q", got, offset, reason)
 	}
@@ -141,7 +141,7 @@ func TestAwayAndSavingSessionsAimLower(t *testing.T) {
 	if away[0].setpoint >= home[0].setpoint || reason != "Nobody's home: aiming lower" {
 		t.Fatalf("away %v vs home %v (%q)", away[0].setpoint, home[0].setpoint, reason)
 	}
-	_, saving, reason := plan(zone, 20, heaters, energyNow{elecP: 6.6, gasP: 8.3, saving: true}, false)
+	_, saving, reason := plan(zone, 20, heaters, energyNow{elecP: 7, gasP: 8, saving: true}, false)
 	if got := setpoints(saving); got["dreo"] != 5 || reason != "Saving session: 1° lower" {
 		t.Fatalf("saving session: %v %q", got, reason)
 	}

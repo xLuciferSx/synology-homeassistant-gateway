@@ -200,9 +200,9 @@ func main() {
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte("ok"))
 	})
-	mux.HandleFunc("GET /api/hub", func(w http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("GET /api/hub", func(w http.ResponseWriter, r *http.Request) {
 		info := map[string]any{"version": version, "cloud": az.cloud != nil}
-		if az.cloud != nil {
+		if az.cloud != nil && fromHomeNetwork(r) { // name and id only for phones on the home network
 			owned, _ := az.cloud.status()
 			info["hub_id"], info["name"], info["owned"] = az.cloud.id, az.cloud.name, owned
 		}

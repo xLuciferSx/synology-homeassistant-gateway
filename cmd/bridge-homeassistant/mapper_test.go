@@ -178,18 +178,18 @@ func TestASplitTVBecomesOneProductWithItsRemote(t *testing.T) {
 
 func TestSyntheticProducts(t *testing.T) {
 	states := []haState{
-		{EntityID: "sensor.octopus_energy_electricity_17p_161_current_rate", State: "0.066"},
-		{EntityID: "sensor.octopus_energy_electricity_17p_161_next_rate", State: "0.358518"},
-		{EntityID: "sensor.octopus_energy_electricity_17p_161_previous_accumulative_cost", State: "6.66"},
+		{EntityID: "sensor.octopus_energy_electricity_17p_161_current_rate", State: "0.07"},
+		{EntityID: "sensor.octopus_energy_electricity_17p_161_next_rate", State: "0.30"},
+		{EntityID: "sensor.octopus_energy_electricity_17p_161_previous_accumulative_cost", State: "5.00"},
 		{EntityID: "binary_sensor.octopus_energy_electricity_17p_161_off_peak", State: "on"},
-		{EntityID: "sensor.octopus_energy_gas_g4p_151_current_rate", State: "0.082851"},
+		{EntityID: "sensor.octopus_energy_gas_g4p_151_current_rate", State: "0.08"},
 		{EntityID: "person.alex", State: "not_home", Attributes: map[string]any{"friendly_name": "Alex"}},
 		{EntityID: "person.sam", State: "home", Attributes: map[string]any{"friendly_name": "Sam"}},
 		{EntityID: "person.mqtt_user", State: "unknown"},
 	}
 	m := build(nil, nil, nil, states)
 	e := m.products["ha-energy"]
-	if e == nil || e.dev.State["elec_rate_p"] != 6.6 || e.dev.State["elec_next_rate_p"] != 35.9 || e.dev.State["off_peak"] != true || e.dev.State["gas_rate_p"] != 8.3 {
+	if e == nil || e.dev.State["elec_rate_p"] != 7.0 || e.dev.State["elec_next_rate_p"] != 30.0 || e.dev.State["off_peak"] != true || e.dev.State["gas_rate_p"] != 8.0 {
 		t.Fatalf("energy = %+v", e)
 	}
 	p := m.products["ha-people"]
